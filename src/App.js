@@ -11,7 +11,7 @@ export default function Home() {
 
     // Initialize our editionDrop contract
     const editionDrop = useEditionDrop(
-        '0x57af5B1598B6fF16215E0fb3Becd9eC59D8f1179'
+        '0xB3636C9D0503CB4B980c92125d1E719a250731AE'
     );
     // State variable for us to know if user has our NFT.
     const [hasClaimedNFT, setHasClaimedNFT] = useState(false);
