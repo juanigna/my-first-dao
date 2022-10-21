@@ -1,49 +1,92 @@
-import { ConnectWallet } from "@thirdweb-dev/react";
-import "./styles/Home.css";
+import { useAddress, useMetamask } from '@thirdweb-dev/react';
+import './styles/Home.css';
+import { useEditionDrop } from '@thirdweb-dev/react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
-  return (
-    <div className="container">
-      <main className="main">
-        <h1 className="title">
-          Welcome to <a href="https://thirdweb.com/">thirdweb</a>!
-        </h1>
+    // Use the hooks thirdweb give us.
+    const address = useAddress();
+    const connectWithMetamask = useMetamask();
+    console.log('👋 Address:', address);
 
-        <p className="description">
-          Get started by configuring your desired network in{" "}
-          <code className="code">src/index.js</code>, then modify the{" "}
-          <code className="code">src/App.js</code> file!
-        </p>
+    // Initialize our editionDrop contract
+    const editionDrop = useEditionDrop(
+        '0x57af5B1598B6fF16215E0fb3Becd9eC59D8f1179'
+    );
+    // State variable for us to know if user has our NFT.
+    const [hasClaimedNFT, setHasClaimedNFT] = useState(false);
+    // isClaiming lets us easily keep a loading state while the NFT is minting.
+    const [isClaiming, setIsClaiming] = useState(false);
 
-        <div className="connect">
-          <ConnectWallet />
+    useEffect(() => {
+        // If they don't have an connected wallet, exit!
+        if (!address) {
+            return;
+        }
+
+        const checkBalance = async () => {
+            try {
+                const balance = await editionDrop.balanceOf(address, 0);
+                if (balance.gt(0)) {
+                    setHasClaimedNFT(true);
+                    console.log('🌟 this user has a membership NFT!');
+                } else {
+                    setHasClaimedNFT(false);
+                    console.log("😭 this user doesn't have a membership NFT.");
+                }
+            } catch (error) {
+                setHasClaimedNFT(false);
+                console.error('Failed to get balance', error);
+            }
+        };
+        checkBalance();
+    }, [address, editionDrop]);
+
+    const mintNft = async () => {
+        try {
+            setIsClaiming(true);
+            await editionDrop.claim('0', 1);
+            console.log(
+                `🌊 Successfully Minted! Check it out on OpenSea: https://testnets.opensea.io/assets/${editionDrop.getAddress()}/0`
+            );
+            setHasClaimedNFT(true);
+        } catch (error) {
+            setHasClaimedNFT(false);
+            console.error('Failed to mint NFT', error);
+        } finally {
+            setIsClaiming(false);
+        }
+    };
+
+    // This is the case where the user hasn't connected their wallet
+    // to your web app. Let them call connectWallet.
+    if (!address) {
+        return (
+            <div className="landing">
+                <h1>Welcome to NarutoDAO</h1>
+                <button onClick={connectWithMetamask} className="btn-hero">
+                    Connect your wallet
+                </button>
+            </div>
+        );
+    }
+
+    if (hasClaimedNFT) {
+        return (
+            <div className="member-page">
+                <h1>🍪DAO Member Page</h1>
+                <p>Congratulations on being a member</p>
+            </div>
+        );
+    }
+
+    // Render mint nft screen.
+    return (
+        <div className="mint-nft">
+            <h1>Mint your free 🍪DAO Membership NFT</h1>
+            <button disabled={isClaiming} onClick={mintNft}>
+                {isClaiming ? 'Minting...' : 'Mint your nft (FREE)'}
+            </button>
         </div>
-
-        <div className="grid">
-          <a href="https://portal.thirdweb.com/" className="card">
-            <h2>Portal &rarr;</h2>
-            <p>
-              Guides, references and resources that will help you build with
-              thirdweb.
-            </p>
-          </a>
-
-          <a href="https://thirdweb.com/dashboard" className="card">
-            <h2>Dashboard &rarr;</h2>
-            <p>
-              Deploy, configure and manage your smart contracts from the
-              dashboard.
-            </p>
-          </a>
-
-          <a href="https://portal.thirdweb.com/templates" className="card">
-            <h2>Templates &rarr;</h2>
-            <p>
-              Discover and clone template projects showcasing thirdweb features.
-            </p>
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+    );
 }
