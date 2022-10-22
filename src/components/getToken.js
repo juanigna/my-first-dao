@@ -1,5 +1,4 @@
-import React from 'react';
-import { useAddress, useMetamask, useContract } from '@thirdweb-dev/react';
+import { useContract } from '@thirdweb-dev/react';
 
 const GetToken = () => {
     const { contract: token, isLoading } = useContract(

@@ -1,6 +1,6 @@
 import './styles/Home.css';
 import { useState, useEffect, useMemo } from 'react';
-import GrabAdressess from './components/grabAdressess';
+import GetEditionDrop from './components/getEditionDrop';
 import GetToken from './components/getToken';
 import { useAddress, useMetamask } from '@thirdweb-dev/react';
 
@@ -11,7 +11,7 @@ export default function Home() {
 
     // Initialize our editionDrop contract
 
-    const editionDrop = GrabAdressess();
+    const editionDrop = GetEditionDrop();
 
     const token = GetToken();
 

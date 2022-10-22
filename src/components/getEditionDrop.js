@@ -1,4 +1,4 @@
-import { useAddress, useMetamask, useContract } from '@thirdweb-dev/react';
+import { useContract } from '@thirdweb-dev/react';
 
 const GrabAdressess = () => {
     const { contract: editionDrop, isLoading } = useContract(
